@@ -167,7 +167,7 @@ Disassembly of section .text:
 000000f8 <testApp>:
   f8:	17 bf       	out	0x37, r17	; 55
   fa:	16 bf       	out	0x36, r17	; 54
-  fc:	09 9a       	sbi	0x01, 1	; 1
+  fc:	0b 9a       	sbi	0x01, 3	; 1
   fe:	13 9a       	sbi	0x02, 3	; 2
  100:	4f ef       	ldi	r20, 0xFF	; 255
  102:	59 e6       	ldi	r21, 0x69	; 105
