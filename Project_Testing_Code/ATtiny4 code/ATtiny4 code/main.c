@@ -29,10 +29,10 @@ void testApp(void)
 	
 	while(1)
 	{
-		SET_BIT(PORTB , PORTB_PB1);
+		SET_BIT(PORTB , PORTB_PB3);
 		_delay_ms(1000);
 		
-		CLEAR_BIT(PORTB , PORTB_PB1);
+		CLEAR_BIT(PORTB , PORTB_PB3);
 		_delay_ms(1000);
 	}
 	return;
