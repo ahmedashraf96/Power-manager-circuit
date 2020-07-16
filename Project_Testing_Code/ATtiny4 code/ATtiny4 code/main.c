@@ -18,20 +18,21 @@
 
 #define  F_CPU 8000000UL
 #include "util/delay.h"
+
 /************************************************************************/
 /*            Application entry point & testing function                */
 /************************************************************************/
 
 void testApp(void)
 {
-	SET_BIT(DDRB , DDRB_PB3);
+	SET_BIT(DDRB , DDRB_PB1);
 	
 	while(1)
 	{
-		SET_BIT(PORTB , PORTB_PB3);
+		SET_BIT(PORTB , PORTB_PB1);
 		_delay_ms(1000);
 		
-		CLEAR_BIT(PORTB , PORTB_PB3);
+		CLEAR_BIT(PORTB , PORTB_PB1);
 		_delay_ms(1000);
 	}
 	return;
