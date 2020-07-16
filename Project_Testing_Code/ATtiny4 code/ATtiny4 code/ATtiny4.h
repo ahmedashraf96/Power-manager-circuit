@@ -59,6 +59,9 @@ typedef unsigned short u16_t;
 #define CLKMSR (*(volatile u8_t*)(0x37))
 #define CLKPSR (*(volatile u8_t*)(0x36))
 
+/*Configuration Change Protection Register*/
+#define CCP    (*(volatile u8_t*)(0x3C))
+
 /************************************************************************/
 /*               Important register bits                                */
 /************************************************************************/
