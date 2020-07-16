@@ -55,6 +55,10 @@ typedef unsigned short u16_t;
 /*Sleep mode control register*/
 #define SMCR   (*(volatile u8_t*)(0x3A))
 
+/*CLK control registers*/
+#define CLKMSR (*(volatile u8_t*)(0x37))
+#define CLKPSR (*(volatile u8_t*)(0x36))
+
 /************************************************************************/
 /*               Important register bits                                */
 /************************************************************************/

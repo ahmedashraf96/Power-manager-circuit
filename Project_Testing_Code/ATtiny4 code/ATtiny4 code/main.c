@@ -25,6 +25,8 @@
 
 void testApp(void)
 {
+	CLKMSR = 0x00; /*Selecting the internal oscillator with 8MHz*/
+	CLKPSR = 0x00; /*Setting the clk prescaler to 1*/
 	SET_BIT(DDRB , DDRB_PB1);
 	
 	while(1)
