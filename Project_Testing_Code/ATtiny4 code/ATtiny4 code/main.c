@@ -27,14 +27,14 @@ void testApp(void)
 {
 	CLKMSR = 0x00; /*Selecting the internal oscillator with 8MHz*/
 	CLKPSR = 0x00; /*Setting the clk prescaler to 1*/
-	SET_BIT(DDRB , DDRB_PB3);
+	SET_BIT(DDRB , DDRB_PB1);
 	
 	while(1)
 	{
-		SET_BIT(PORTB , PORTB_PB3);
+		SET_BIT(PORTB , PORTB_PB1);
 		_delay_ms(1000);
 		
-		CLEAR_BIT(PORTB , PORTB_PB3);
+		CLEAR_BIT(PORTB , PORTB_PB1);
 		_delay_ms(1000);
 	}
 	return;

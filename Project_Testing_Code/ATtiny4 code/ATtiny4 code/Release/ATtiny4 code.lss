@@ -167,8 +167,8 @@ Disassembly of section .text:
 000000f8 <testApp>:
   f8:	17 bf       	out	0x37, r17	; 55
   fa:	16 bf       	out	0x36, r17	; 54
-  fc:	0b 9a       	sbi	0x01, 3	; 1
-  fe:	13 9a       	sbi	0x02, 3	; 2
+  fc:	09 9a       	sbi	0x01, 1	; 1
+  fe:	11 9a       	sbi	0x02, 1	; 2
  100:	4f ef       	ldi	r20, 0xFF	; 255
  102:	59 e6       	ldi	r21, 0x69	; 105
  104:	68 e1       	ldi	r22, 0x18	; 24
@@ -178,7 +178,7 @@ Disassembly of section .text:
  10c:	e1 f7       	brne	.-8      	; 0x106 <__DATA_REGION_LENGTH__+0x6>
  10e:	00 c0       	rjmp	.+0      	; 0x110 <__DATA_REGION_LENGTH__+0x10>
  110:	00 00       	nop
- 112:	13 98       	cbi	0x02, 3	; 2
+ 112:	11 98       	cbi	0x02, 1	; 2
  114:	4f ef       	ldi	r20, 0xFF	; 255
  116:	59 e6       	ldi	r21, 0x69	; 105
  118:	68 e1       	ldi	r22, 0x18	; 24
