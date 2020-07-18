@@ -16,6 +16,7 @@
 #include "ATtiny4.h"
 #include "Functionality.h"
 
+#include "avr/sleep.h"
 /************************************************************************/
 /*					       Important macros                             */
 /************************************************************************/
@@ -146,13 +147,16 @@ void attiny4_init(void)
 	SET_BIT(SREG , SREG_IBIT);
 
 	/*Select the power down mode*/
-	SMCR = POWER_DOWN_MODE_SELECTION;
+	//SMCR = POWER_DOWN_MODE_SELECTION;
+	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	
 	/*Sleep enable*/
-	SET_BIT(SMCR , SMCR_SE);
-	
+	//SET_BIT(SMCR , SMCR_SE);
+	sleep_enable();
+
 	/*Execute sleep instruction*/
 	//__asm__ __volatile__ ( "sleep" "\n\t" :: );	
+	sleep_cpu();
 	
 	return;
 }
@@ -190,9 +194,6 @@ void mainApplication(void)
 		/*Report that the system has become in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
 		
-		/*Reset the switch counter*/
-		gu16_switchCounter = 0;
-			
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
 		
@@ -278,6 +279,9 @@ void mainApplication(void)
 /*ISR for EXTI0 that happens when pressing switch on PB2*/
 void EXTI0_ISR(void)
 {
+	/*Reset the switch counter*/
+	gu16_switchCounter = 0;
+
 	/*Switching from OFF mode to ON mode*/
 	if(EICRA == EXTI0_LOW_LEVEL_TRIGGER)
 	{
@@ -290,10 +294,7 @@ void EXTI0_ISR(void)
 		/*Turn on the timer by pre-scaler 8*/
 		TCCR0 &= TIMER0_CLEAR_PRESCALER;
 		TCCR0 |= TIMER0_PRESCALER_8;
-				
-		/*Reset the switch counter*/
-		gu16_switchCounter = 0;
-		
+						
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
 
