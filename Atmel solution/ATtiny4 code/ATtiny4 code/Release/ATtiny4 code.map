@@ -168,7 +168,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x1ce
+.text           0x00000000      0x1d4
  *(.vectors)
  .vectors       0x00000000       0x14 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
                 0x00000000                __vector_default
@@ -236,25 +236,25 @@ END GROUP
                 0x00000036                . = ALIGN (0x2)
  *(.text.*)
  .text.attiny4_init
-                0x00000036       0x3e Functionality.o
+                0x00000036       0x48 Functionality.o
                 0x00000036                attiny4_init
  .text.mainApplication
-                0x00000074       0x8e Functionality.o
-                0x00000074                mainApplication
+                0x0000007e       0x8e Functionality.o
+                0x0000007e                mainApplication
  .text.__vector_1
-                0x00000102       0x74 Functionality.o
-                0x00000102                __vector_1
+                0x0000010c       0x74 Functionality.o
+                0x0000010c                __vector_1
  .text.__vector_5
-                0x00000176       0x4e Functionality.o
-                0x00000176                __vector_5
+                0x00000180       0x4a Functionality.o
+                0x00000180                __vector_5
  .text.startup.main
-                0x000001c4        0x6 main.o
-                0x000001c4                main
-                0x000001ca                . = ALIGN (0x2)
+                0x000001ca        0x6 main.o
+                0x000001ca                main
+                0x000001d0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000001ca        0x0 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
-                0x000001ca                _exit
-                0x000001ca                exit
+ .fini9         0x000001d0        0x0 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
+                0x000001d0                _exit
+                0x000001d0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -273,11 +273,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000001ca        0x4 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
+ .fini0         0x000001d0        0x4 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
  *(.fini0)
-                0x000001ce                _etext = .
+                0x000001d4                _etext = .
 
-.data           0x00800040        0x0 load address 0x000001ce
+.data           0x00800040        0x0 load address 0x000001d4
                 [!provide]                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -292,22 +292,22 @@ END GROUP
                 0x00800040                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.gu16_checkCounter
-                0x00800040        0x2 Functionality.o
-                0x00800040                gu16_checkCounter
- .bss.gu16_switchCounter
-                0x00800042        0x2 Functionality.o
-                0x00800042                gu16_switchCounter
- .bss.gu8_voltageCheckTrials
-                0x00800044        0x1 Functionality.o
-                0x00800044                gu8_voltageCheckTrials
  .bss.gu8_systemStatus
-                0x00800045        0x1 Functionality.o
-                0x00800045                gu8_systemStatus
+                0x00800040        0x1 Functionality.o
+                0x00800040                gu8_systemStatus
+ .bss.gu8_voltageCheckTrials
+                0x00800041        0x1 Functionality.o
+                0x00800041                gu8_voltageCheckTrials
+ .bss.gu16_checkCounter
+                0x00800042        0x2 Functionality.o
+                0x00800042                gu16_checkCounter
+ .bss.gu16_switchCounter
+                0x00800044        0x2 Functionality.o
+                0x00800044                gu16_switchCounter
  *(COMMON)
                 0x00800046                PROVIDE (__bss_end, .)
-                0x000001ce                __data_load_start = LOADADDR (.data)
-                0x000001ce                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000001d4                __data_load_start = LOADADDR (.data)
+                0x000001d4                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800046        0x0
                 [!provide]                PROVIDE (__noinit_start, .)

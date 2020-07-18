@@ -2,7 +2,7 @@
  * @file    Functionality.c
  * @author  Ahmed Ashraf (ahmedashrafelnaqeeb@gmail.com)
  * @brief   This file contains the interfacing functions logic implementation for the power manager application
- * @version 1.0
+ * @version 1.1
  * @date    2020-07-13
  * 
  * @copyright Copyright (c) 2020
@@ -29,31 +29,29 @@
 #define TIMER0_PRESCALER_8				(0x0002)
 #define TIMER0_CLEAR_PRESCALER			(0xFFF8)
 #define TIMER0_OCR0A_INT_EN				(0x02)
-#define IO_PINS_DIR_INITIALIZATION      (0x08)
+#define IO_PINS_DIR_INITIALIZATION      (0x01)
 #define IO_LOW_LEVEL					(0)
 #define IO_HIGH_LEVEL					(1)
+#define IO_PB2_PULLUP_ACTIVATE          (0x04)
 #define POWER_DOWN_MODE_SELECTION		(0x04)
 #define SYSTEM_OFF_STATUS				(0)
 #define SYSTEM_ON_STATUS				(1)
 #define NO_VOLTAGE_PRESENT				(0)
 #define NO_RESIDUAL_CHARGE 				(1)
+#define VOLTAGE_CHECKING_TRIALS         (2)
 #define TWO_SEC_DELAY                   (2000)
 #define ONE_MS_DELAY                    (2000)
 #define ONE_SECOND                      (20)
 #define TWO_SECONDS                     (40)
 #define THREE_SECONDS                   (60)
 #define TEN_SECONDS                     (200)
-
+#define INTERNAL_OSC_SELECT_8MZ         (0x00)
+#define ENABLE_CHANGE_FOR_IO_REG        (0xD8)
+#define MAIN_CLK_PRESCALING_BY_1        (0x00)
 		
 /************************************************************************/
 /*                        Important system variables                    */
 /************************************************************************/
-
-/*Variable used to carry the system current status (ON or OFF)*/
-u8_t  gu8_systemStatus = 0;
-
-/*VAriable used in voltage checking trials*/
-u8_t  gu8_voltageCheckTrials = 0;
 
 /*Variable used in counting switch time being pressed*/
 u16_t gu16_switchCounter = 0;
@@ -61,14 +59,37 @@ u16_t gu16_switchCounter = 0;
 /*Variable used in voltage checking operation*/
 u16_t gu16_checkCounter = 0;
 
+/*Variable used in voltage checking trials*/
+u8_t  gu8_voltageCheckTrials = 0;
+
+/*Variable used to carry the system current status (ON or OFF)*/
+u8_t  gu8_systemStatus = 0;
+
 /************************************************************************/
 /*                Power manager functions implementation                */
 /************************************************************************/
 
 void attiny4_init(void)
-{	
+{
 	/**
-	  *External interrupt initialization section
+	  * Adjusting the MCU CLK section
+	  */
+
+	/*Disable global interrupts*/
+	CLEAR_BIT(SREG , SREG_IBIT);
+	
+	/*Select the internal oscillator of the MCU with 8MHz*/
+	CLKMSR = INTERNAL_OSC_SELECT_8MZ;
+	
+	/*Enable writing to the CLKPSR register*/
+	CCP = ENABLE_CHANGE_FOR_IO_REG;
+	
+	/*Enable the pre-scaler of the main CLK by 1*/
+	CLKPSR = MAIN_CLK_PRESCALING_BY_1;
+	
+			
+	/**
+	  * External interrupt initialization section
 	  */
 	
 	/*Disable external interrupt0 (EXTI0)*/
@@ -82,6 +103,7 @@ void attiny4_init(void)
 
 	/*Enable global interrupts*/
 	SET_BIT(SREG , SREG_IBIT);
+
 
 	/**
       *	Timer initialization section
@@ -98,28 +120,26 @@ void attiny4_init(void)
 	
 	/*Enable CTC mode interrupt*/
 	TIMSK0 = TIMER0_OCR0A_INT_EN;
-	
+		
 	/**
       *	DIO initialization section
 	  */
 	
 	/**
 	 * IO Pins initialization by:
-	 * PB0 -> Input
+	 * PB0 -> Output
 	 * PB1 -> Input
 	 * PB2 -> Input
-	 * PB3 -> Output
+	 * PB3 -> Input
 	 */
 	DDRB = IO_PINS_DIR_INITIALIZATION;
 	
-	/*Set PB3 to logic zero*/
-	CLEAR_BIT(PORTB , PORTB_PB3);
-
-	/*Activate pull-up resistor for PB0*/
-	SET_BIT(PORTB , PORTB_PB0);
+	/*Activating the pull up resistor for PB2*/
+	PUEB = IO_PB2_PULLUP_ACTIVATE;
 	
-	/*Activate pull-up resistor for PB2*/
-	SET_BIT(PORTB , PORTB_PB2);	
+	/*Set PB0 to logic zero*/
+	CLEAR_BIT(PORTB , PORTB_PB0);
+
 	
 	/**
 	 * Activating power down mode
@@ -141,8 +161,8 @@ void mainApplication(void)
 {
     /*Applying the state machine of the system*/
 
-    /*Checking if there's a residual charge or not in the battery and if the switch pressed for more than 10 seconds*/
-	if( (GET_BIT(PINB , PINB_PB0) == NO_RESIDUAL_CHARGE) || (gu16_switchCounter > TEN_SECONDS) )
+    /*Checking if the switch pressed for more than 10 seconds*/
+	if( gu16_switchCounter > TEN_SECONDS )
 	{
 		/*Variable used in delay operations*/
 		u16_t au16_delayVariable = TWO_SEC_DELAY;
@@ -164,8 +184,8 @@ void mainApplication(void)
     /*Checking if the switch is pressed for (1~2) seconds and the system is already in the OFF state*/
 	else if( (gu16_switchCounter >= ONE_SECOND && gu16_switchCounter <= TWO_SECONDS) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
 	{
-		/*Set PB3 to high level*/
-		SET_BIT(PORTB , PORTB_PB3);
+		/*Set PB0 to high level*/
+		SET_BIT(PORTB , PORTB_PB0);
 		
 		/*Report that the system has become in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
@@ -180,16 +200,16 @@ void mainApplication(void)
     /*Checking if the switch is pressed for (1~2) seconds and the system is already in the ON state*/
 	else if( (gu16_switchCounter >= ONE_SECOND && gu16_switchCounter <= TWO_SECONDS) && (gu8_systemStatus == SYSTEM_ON_STATUS) )
 	{
-		/*Set PB3 to low level*/
-		CLEAR_BIT(PORTB , PORTB_PB3);
-
 		/*Report that the system is in OFF mode*/
-		gu8_systemStatus = SYSTEM_OFF_STATUS;		
+		gu8_systemStatus = SYSTEM_OFF_STATUS;
+		
+		/*Initialize the system and enter power down mode*/
+		attiny4_init();				
 	}
 
     /*Checking after powering ON by 3 seconds that there's a voltage present or not and applying two powering up trials 
       if there's no voltage present*/
-	else if( (gu16_checkCounter == THREE_SECONDS) && (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) && (gu8_voltageCheckTrials < 2) )
+	else if( (gu16_checkCounter >= THREE_SECONDS) && (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) && (gu8_voltageCheckTrials < VOLTAGE_CHECKING_TRIALS) )
 	{	
 		/*Variable used in delay operations*/
 		u16_t au16_delayVariable = TWO_SEC_DELAY;
@@ -197,8 +217,8 @@ void mainApplication(void)
 		/*Disable all interrupts*/
 		CLEAR_BIT(SREG , SREG_IBIT);
 				
-		/*Set PB3 to low level*/
-		CLEAR_BIT(PORTB , PORTB_PB3);
+		/*Set PB0 to low level*/
+		CLEAR_BIT(PORTB , PORTB_PB0);
 		
 		/*Delay for two seconds*/
 		while(au16_delayVariable--)
@@ -210,8 +230,8 @@ void mainApplication(void)
 			for (i = 0 ; i < ONE_MS_DELAY ; i++);
 		}
 			
-		/*Set PB3 to high level*/
-		SET_BIT(PORTB , PORTB_PB3);
+		/*Set PB0 to high level*/
+		SET_BIT(PORTB , PORTB_PB0);
 		
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
@@ -221,13 +241,21 @@ void mainApplication(void)
 		
 		/*Enable all interrupts*/
 		SET_BIT(SREG , SREG_IBIT);
+		
+		/*Check if the system attempted two trials or not*/
+		if(gu8_voltageCheckTrials == VOLTAGE_CHECKING_TRIALS)
+		{
+			/*If the trials reached two times initialize the system and enter power down mode*/
+			attiny4_init();
+		}
+		else
+		{
+			/*Do nothing*/
+		}	
 	}
-
-    /*Any other state happens the system will initialize and power down*/
 	else
 	{
-		/*Initialize the system again and enter power down mode*/
-		attiny4_init();
+		/*Do nothing*/
 	}
 
 	return;
@@ -237,6 +265,7 @@ void mainApplication(void)
 /*							 System ISRs                                */
 /************************************************************************/
 
+/*ISR for EXTI0 that happens when pressing switch on PB2*/
 void EXTI0_ISR(void)
 {
 	/*Switching from OFF mode to ON mode*/
@@ -258,7 +287,7 @@ void EXTI0_ISR(void)
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
 
-		/*Report the system is in OFF mode*/
+		/*Report that the system is in OFF mode*/
 		gu8_systemStatus = SYSTEM_OFF_STATUS;
 	}
 	else if(EICRA == EXTI0_FALLING_EDGE_TRIGGER)
@@ -266,11 +295,12 @@ void EXTI0_ISR(void)
 		/*Reset the switch counter*/
 		gu16_switchCounter = 0;
 		
-		/*Report the system is in ON mode*/
+		/*Report that the system is in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
 	}
 }
 
+/*ISR for OCR0A that happens when timer compare match happens*/
 void OCR0A_ISR(void)
 {
     /*Checking if the switch is pressed or not*/
@@ -280,8 +310,8 @@ void OCR0A_ISR(void)
 		gu16_switchCounter++;
 	}
 
-    /*Checking if the switch is released and there's no voltage present*/
-	else if( (GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL) && (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) )
+    /*Checking if there's no voltage present*/
+	else if( (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) )
 	{
         /*Increase the voltage presence checking time counter*/
 		gu16_checkCounter++;

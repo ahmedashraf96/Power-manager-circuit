@@ -2,7 +2,7 @@
  * @file    ATtiny4.h
  * @author  Ahmed Ashraf (ahmedashrafelnaqeeb@gmail.com)
  * @brief   This header file contains the important definitions for ATtiny4 MCU
- * @version 1.0
+ * @version 1.1
  * @date    2020-07-13
  * 
  * @copyright Copyright (c) 2020
@@ -42,6 +42,7 @@ typedef unsigned short u16_t;
 #define EIMSK  (*(volatile u8_t*)(0x13))
 
 /*DIO Registers*/
+#define PUEB   (*(volatile u8_t*)(0x03))
 #define PORTB  (*(volatile u8_t*)(0x02))
 #define DDRB   (*(volatile u8_t*)(0x01))
 #define PINB   (*(volatile u8_t*)(0x00))
@@ -54,6 +55,13 @@ typedef unsigned short u16_t;
 
 /*Sleep mode control register*/
 #define SMCR   (*(volatile u8_t*)(0x3A))
+
+/*CLK control registers*/
+#define CLKMSR (*(volatile u8_t*)(0x37))
+#define CLKPSR (*(volatile u8_t*)(0x36))
+
+/*Configuration Change Protection Register*/
+#define CCP    (*(volatile u8_t*)(0x3C))
 
 /************************************************************************/
 /*               Important register bits                                */
