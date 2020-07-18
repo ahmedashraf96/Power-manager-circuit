@@ -13,13 +13,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000284  2**2
                   CONTENTS, READONLY
-  5 .debug_info   000002ab  00000000  00000000  000002c0  2**0
+  5 .debug_aranges 00000058  00000000  00000000  000002c0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000284  00000000  00000000  0000056b  2**0
+  6 .debug_info   0000043d  00000000  00000000  00000318  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000000d3  00000000  00000000  000007ef  2**0
+  7 .debug_abbrev 0000038e  00000000  00000000  00000755  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_str    000000f6  00000000  00000000  000008c2  2**0
+  8 .debug_line   00000325  00000000  00000000  00000ae3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  000000b8  00000000  00000000  00000e08  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    000002e3  00000000  00000000  00000ec0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    000000ea  00000000  00000000  000011a3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000038  00000000  00000000  0000128d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -64,43 +72,115 @@ Disassembly of section .text:
   34:	e5 cf       	rjmp	.-54     	; 0x0 <__vectors>
 
 00000036 <attiny4_init>:
+	/**
+	  * Adjusting the MCU CLK section
+	  */
+
+	/*Disable global interrupts*/
+	CLEAR_BIT(SREG , SREG_IBIT);
   36:	4f b7       	in	r20, 0x3f	; 63
   38:	4f 77       	andi	r20, 0x7F	; 127
   3a:	4f bf       	out	0x3f, r20	; 63
+	
+	/*Select the internal oscillator of the MCU with 8MHz*/
+	CLKMSR = INTERNAL_OSC_SELECT_8MZ;
   3c:	17 bf       	out	0x37, r17	; 55
+	
+	/*Enable writing to the CLKPSR register*/
+	CCP = ENABLE_CHANGE_FOR_IO_REG;
   3e:	48 ed       	ldi	r20, 0xD8	; 216
   40:	4c bf       	out	0x3c, r20	; 60
+	
+	/*Enable the pre-scaler of the main CLK by 1*/
+	CLKPSR = MAIN_CLK_PRESCALING_BY_1;
   42:	16 bf       	out	0x36, r17	; 54
+	/**
+	  * External interrupt initialization section
+	  */
+	
+	/*Disable external interrupt0 (EXTI0)*/
+	EIMSK = EXTI0_ENABLE;
   44:	41 e0       	ldi	r20, 0x01	; 1
   46:	43 bb       	out	0x13, r20	; 19
+	
+	/*Selecting low level as interrupt trigger*/
+	EICRA = EXTI0_LOW_LEVEL_TRIGGER;
   48:	15 bb       	out	0x15, r17	; 21
+	
+	/*Clear EXTI0 flag*/
+	SET_BIT(EIFR , EIFR_INTF0);	
   4a:	a0 9a       	sbi	0x14, 0	; 20
+	/**
+      *	Timer initialization section
+	  */
+	
+	/*Selecting CTC mode with OCR0A*/
+	TCCR0 = TIMER0_CTC_MODE_SELECTION;
   4c:	68 e0       	ldi	r22, 0x08	; 8
   4e:	70 e0       	ldi	r23, 0x00	; 0
   50:	7e bd       	out	0x2e, r23	; 46
   52:	6d bd       	out	0x2d, r22	; 45
+	
+	/*Clearing timer/counter register*/
+	TCNT0 = 0;
   54:	19 bd       	out	0x29, r17	; 41
   56:	18 bd       	out	0x28, r17	; 40
+	
+	/*Adjusting TIMER0 to fire CTC interrupt every 10ms for 8MHz frequency and prescaler by 8*/
+	OCR0A = TIMER0_50MS_TICK;
   58:	60 e5       	ldi	r22, 0x50	; 80
   5a:	73 ec       	ldi	r23, 0xC3	; 195
   5c:	77 bd       	out	0x27, r23	; 39
   5e:	66 bd       	out	0x26, r22	; 38
+	
+	/*Enable CTC mode interrupt*/
+	TIMSK0 = TIMER0_OCR0A_INT_EN;
   60:	52 e0       	ldi	r21, 0x02	; 2
   62:	5b bd       	out	0x2b, r21	; 43
+	 * PB0 -> Output
+	 * PB1 -> Input
+	 * PB2 -> Input
+	 * PB3 -> Input
+	 */
+	DDRB = IO_PINS_DIR_INITIALIZATION;
   64:	41 b9       	out	0x01, r20	; 1
+	
+	/*Enabling the pull up resistor for PB2*/
+	PUEB = IO_PB2_PULLUP_ENABLE;
   66:	44 e0       	ldi	r20, 0x04	; 4
   68:	43 b9       	out	0x03, r20	; 3
+	
+	/*Activate the pull up resistor for PB2 and set PB0 voltage level to zero*/
+	PORTB = IO_PB2_PULLUP_ACTIVATE_PB0_LL;
   6a:	42 b9       	out	0x02, r20	; 2
+	/**
+	 * Enabling all interrupts and activating power down mode
+	 */
+	
+	/*Enable global interrupts*/
+	SET_BIT(SREG , SREG_IBIT);
   6c:	5f b7       	in	r21, 0x3f	; 63
   6e:	50 68       	ori	r21, 0x80	; 128
   70:	5f bf       	out	0x3f, r21	; 63
+
+	/*Select the power down mode*/
+	SMCR = POWER_DOWN_MODE_SELECTION;
   72:	4a bf       	out	0x3a, r20	; 58
+	
+	/*Sleep enable*/
+	SET_BIT(SMCR , SMCR_SE);
   74:	4a b7       	in	r20, 0x3a	; 58
   76:	41 60       	ori	r20, 0x01	; 1
   78:	4a bf       	out	0x3a, r20	; 58
   7a:	08 95       	ret
 
 0000007c <mainApplication>:
+void mainApplication(void)
+{
+    /*Applying the state machine of the system*/
+
+    /*Checking if the switch pressed for more than 10 seconds*/
+	if( gu16_switchCounter > TEN_SECONDS )
   7c:	a4 e4       	ldi	r26, 0x44	; 68
   7e:	b0 e0       	ldi	r27, 0x00	; 0
   80:	4c 91       	ld	r20, X
@@ -112,6 +192,12 @@ Disassembly of section .text:
   8c:	49 3c       	cpi	r20, 0xC9	; 201
   8e:	51 07       	cpc	r21, r17
   90:	d0 f4       	brcc	.+52     	; 0xc6 <mainApplication+0x4a>
+		/*Initialize the system again and enter power down mode*/
+		attiny4_init();
+	}
+
+    /*Checking if the switch is pressed for (1~2) seconds and the system is already in the OFF state*/
+	else if( (gu16_switchCounter >= ONE_SECOND && gu16_switchCounter <= TWO_SECONDS) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
   92:	44 51       	subi	r20, 0x14	; 20
   94:	51 0b       	sbc	r21, r17
   96:	45 31       	cpi	r20, 0x15	; 21
@@ -122,23 +208,53 @@ Disassembly of section .text:
   a0:	40 81       	ld	r20, Z
   a2:	41 13       	cpse	r20, r17
   a4:	0d c0       	rjmp	.+26     	; 0xc0 <mainApplication+0x44>
+	{
+		/*Set PB0 to high level*/
+		SET_BIT(PORTB , PORTB_PB0);
   a6:	10 9a       	sbi	0x02, 0	; 2
+		
+		/*Report that the system has become in ON mode*/
+		gu8_systemStatus = SYSTEM_ON_STATUS;
   a8:	41 e0       	ldi	r20, 0x01	; 1
   aa:	40 83       	st	Z, r20
+		
+		/*Reset the switch counter*/
+		gu16_switchCounter = 0;
   ac:	1d 93       	st	X+, r17
   ae:	1c 93       	st	X, r17
+			
+		/*Reset the voltage checking counter*/
+		gu16_checkCounter = 0;
   b0:	e2 e4       	ldi	r30, 0x42	; 66
   b2:	f0 e0       	ldi	r31, 0x00	; 0
   b4:	11 93       	st	Z+, r17
   b6:	10 83       	st	Z, r17
+		
+		/*Reset voltage checking trials counter*/
+		gu8_voltageCheckTrials = 0;
   b8:	e1 e4       	ldi	r30, 0x41	; 65
   ba:	f0 e0       	ldi	r31, 0x00	; 0
   bc:	10 83       	st	Z, r17
   be:	08 95       	ret
+	}
+
+    /*Checking if the switch is pressed for (1~2) seconds and the system is already in the ON state*/
+	else if( (gu16_switchCounter >= ONE_SECOND && gu16_switchCounter <= TWO_SECONDS) && (gu8_systemStatus == SYSTEM_ON_STATUS) )
   c0:	41 30       	cpi	r20, 0x01	; 1
   c2:	11 f4       	brne	.+4      	; 0xc8 <mainApplication+0x4c>
+	{
+		/*Report that the system is in OFF mode*/
+		gu8_systemStatus = SYSTEM_OFF_STATUS;
   c4:	10 83       	st	Z, r17
+		
+		/*Initialize the system and enter power down mode*/
+		attiny4_init();				
   c6:	b7 cf       	rjmp	.-146    	; 0x36 <attiny4_init>
+	}
+
+    /*Checking after powering ON by 3 seconds that there's a voltage present or not and applying two powering up trials 
+      if there's no voltage present*/
+	else if( (gu16_checkCounter >= THREE_SECONDS) && (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) && (gu8_voltageCheckTrials < VOLTAGE_CHECKING_TRIALS) )
   c8:	a2 e4       	ldi	r26, 0x42	; 66
   ca:	b0 e0       	ldi	r27, 0x00	; 0
   cc:	4c 91       	ld	r20, X
@@ -157,23 +273,56 @@ Disassembly of section .text:
   e6:	40 81       	ld	r20, Z
   e8:	42 30       	cpi	r20, 0x02	; 2
   ea:	88 f4       	brcc	.+34     	; 0x10e <__DATA_REGION_LENGTH__+0xe>
+	{	
+		/*Variable used in delay operations*/
+		u16_t au16_delayVariable = TWO_SEC_DELAY;
+			 
+		/*Disable all interrupts*/
+		CLEAR_BIT(SREG , SREG_IBIT);
   ec:	4f b7       	in	r20, 0x3f	; 63
   ee:	4f 77       	andi	r20, 0x7F	; 127
   f0:	4f bf       	out	0x3f, r20	; 63
+				
+		/*Set PB0 to low level*/
+		CLEAR_BIT(PORTB , PORTB_PB0);
   f2:	10 98       	cbi	0x02, 0	; 2
+			/*Software delay for 1ms approximately*/
+			for (i = 0 ; i < ONE_MS_DELAY ; i++);
+		}
+			
+		/*Set PB0 to high level*/
+		SET_BIT(PORTB , PORTB_PB0);
   f4:	10 9a       	sbi	0x02, 0	; 2
+		
+		/*Reset the voltage checking counter*/
+		gu16_checkCounter = 0;
   f6:	1d 93       	st	X+, r17
   f8:	1c 93       	st	X, r17
+		
+		/*Increase voltage checking trials counter*/
+		gu8_voltageCheckTrials++;
   fa:	40 81       	ld	r20, Z
   fc:	4f 5f       	subi	r20, 0xFF	; 255
   fe:	40 83       	st	Z, r20
+		
+		/*Enable all interrupts*/
+		SET_BIT(SREG , SREG_IBIT);
  100:	4f b7       	in	r20, 0x3f	; 63
  102:	40 68       	ori	r20, 0x80	; 128
  104:	4f bf       	out	0x3f, r20	; 63
+		
+		/*Check if the system attempted two trials or not*/
+		if(gu8_voltageCheckTrials == VOLTAGE_CHECKING_TRIALS)
  106:	40 81       	ld	r20, Z
  108:	42 30       	cpi	r20, 0x02	; 2
  10a:	41 f4       	brne	.+16     	; 0x11c <__DATA_REGION_LENGTH__+0x1c>
  10c:	dc cf       	rjmp	.-72     	; 0xc6 <mainApplication+0x4a>
+			/*Do nothing*/
+		}	
+	}
+	
+	/*Checking if the push button pressed accidentally for less than 1 second*/
+	else if( (GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
  10e:	02 9b       	sbis	0x00, 2	; 0
  110:	05 c0       	rjmp	.+10     	; 0x11c <__DATA_REGION_LENGTH__+0x1c>
  112:	e0 e4       	ldi	r30, 0x40	; 64
@@ -184,6 +333,12 @@ Disassembly of section .text:
  11c:	08 95       	ret
 
 0000011e <__vector_1>:
+/*							 System ISRs                                */
+/************************************************************************/
+
+/*ISR for EXTI0 that happens when pressing switch on PB2*/
+void EXTI0_ISR(void)
+{
  11e:	1f 93       	push	r17
  120:	0f 93       	push	r16
  122:	0f b7       	in	r16, 0x3f	; 63
@@ -193,42 +348,70 @@ Disassembly of section .text:
  12a:	5f 93       	push	r21
  12c:	ef 93       	push	r30
  12e:	ff 93       	push	r31
+	/*Switching from OFF mode to ON mode*/
+	if(EICRA == EXTI0_LOW_LEVEL_TRIGGER)
  130:	45 b3       	in	r20, 0x15	; 21
  132:	41 13       	cpse	r20, r17
  134:	1a c0       	rjmp	.+52     	; 0x16a <__vector_1+0x4c>
+	{
+		/*Convert EXTI0 mode into falling edge trigger*/
+		EICRA = EXTI0_FALLING_EDGE_TRIGGER;
  136:	42 e0       	ldi	r20, 0x02	; 2
  138:	45 bb       	out	0x15, r20	; 21
+		
+		/*Clear the timer counter*/
+		TCNT0 = 0;
  13a:	19 bd       	out	0x29, r17	; 41
  13c:	18 bd       	out	0x28, r17	; 40
+
+		/*Turn on the timer by pre-scaler 8*/
+		TCCR0 &= TIMER0_CLEAR_PRESCALER;
  13e:	4d b5       	in	r20, 0x2d	; 45
  140:	5e b5       	in	r21, 0x2e	; 46
  142:	48 7f       	andi	r20, 0xF8	; 248
  144:	5e bd       	out	0x2e, r21	; 46
  146:	4d bd       	out	0x2d, r20	; 45
+		TCCR0 |= TIMER0_PRESCALER_8;
  148:	4d b5       	in	r20, 0x2d	; 45
  14a:	5e b5       	in	r21, 0x2e	; 46
  14c:	42 60       	ori	r20, 0x02	; 2
  14e:	5e bd       	out	0x2e, r21	; 46
  150:	4d bd       	out	0x2d, r20	; 45
+				
+		/*Reset the switch counter*/
+		gu16_switchCounter = 0;
  152:	e4 e4       	ldi	r30, 0x44	; 68
  154:	f0 e0       	ldi	r31, 0x00	; 0
  156:	11 93       	st	Z+, r17
  158:	10 83       	st	Z, r17
+		
+		/*Reset the voltage checking counter*/
+		gu16_checkCounter = 0;
  15a:	e2 e4       	ldi	r30, 0x42	; 66
  15c:	f0 e0       	ldi	r31, 0x00	; 0
  15e:	11 93       	st	Z+, r17
  160:	10 83       	st	Z, r17
+
+		/*Report that the system is in OFF mode*/
+		gu8_systemStatus = SYSTEM_OFF_STATUS;
  162:	e0 e4       	ldi	r30, 0x40	; 64
  164:	f0 e0       	ldi	r31, 0x00	; 0
  166:	10 83       	st	Z, r17
  168:	07 c0       	rjmp	.+14     	; 0x178 <__vector_1+0x5a>
+	}
+	else if(EICRA == EXTI0_FALLING_EDGE_TRIGGER)
  16a:	45 b3       	in	r20, 0x15	; 21
  16c:	42 30       	cpi	r20, 0x02	; 2
  16e:	21 f4       	brne	.+8      	; 0x178 <__vector_1+0x5a>
+	{		
+		/*Report that the system is in ON mode*/
+		gu8_systemStatus = SYSTEM_ON_STATUS;
  170:	41 e0       	ldi	r20, 0x01	; 1
  172:	e0 e4       	ldi	r30, 0x40	; 64
  174:	f0 e0       	ldi	r31, 0x00	; 0
  176:	40 83       	st	Z, r20
+	}
+}
  178:	ff 91       	pop	r31
  17a:	ef 91       	pop	r30
  17c:	5f 91       	pop	r21
@@ -240,6 +423,10 @@ Disassembly of section .text:
  188:	18 95       	reti
 
 0000018a <__vector_5>:
+
+/*ISR for OCR0A that happens when timer compare match happens*/
+void OCR0A_ISR(void)
+{
  18a:	1f 93       	push	r17
  18c:	0f 93       	push	r16
  18e:	0f b7       	in	r16, 0x3f	; 63
@@ -249,13 +436,25 @@ Disassembly of section .text:
  196:	5f 93       	push	r21
  198:	ef 93       	push	r30
  19a:	ff 93       	push	r31
+    /*Checking if the switch is pressed or not*/
+	if( GET_BIT(PINB , PINB_PB2) == IO_LOW_LEVEL )
  19c:	02 99       	sbic	0x00, 2	; 0
  19e:	03 c0       	rjmp	.+6      	; 0x1a6 <__vector_5+0x1c>
+	{
+        /*Increase the switch time counter if it's pressed*/
+		gu16_switchCounter++;
  1a0:	e4 e4       	ldi	r30, 0x44	; 68
  1a2:	f0 e0       	ldi	r31, 0x00	; 0
  1a4:	04 c0       	rjmp	.+8      	; 0x1ae <__vector_5+0x24>
+	}
+
+    /*Checking if there's no voltage present*/
+	else if( GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT )
  1a6:	01 99       	sbic	0x00, 1	; 0
  1a8:	0c c0       	rjmp	.+24     	; 0x1c2 <__vector_5+0x38>
+	{
+        /*Increase the voltage presence checking time counter*/
+		gu16_checkCounter++;
  1aa:	e2 e4       	ldi	r30, 0x42	; 66
  1ac:	f0 e0       	ldi	r31, 0x00	; 0
  1ae:	40 81       	ld	r20, Z
@@ -268,6 +467,11 @@ Disassembly of section .text:
  1bc:	5f 4f       	sbci	r21, 0xFF	; 255
  1be:	41 93       	st	Z+, r20
  1c0:	50 83       	st	Z, r21
+	}
+	else
+	{
+		/*Do nothing*/
+	}
  1c2:	ff 91       	pop	r31
  1c4:	ef 91       	pop	r30
  1c6:	5f 91       	pop	r21
@@ -279,8 +483,20 @@ Disassembly of section .text:
  1d2:	18 95       	reti
 
 000001d4 <main>:
+ * @return int 0 if everything is good and another value if there's an error 
+ */
+int main(void)
+{
+	/*Initializing the power manager circuit*/
+	attiny4_init();
  1d4:	30 df       	rcall	.-416    	; 0x36 <attiny4_init>
+	
+	while(1)
+	{
+		/*The main operation of the power manager circuit*/
+		mainApplication();
  1d6:	52 df       	rcall	.-348    	; 0x7c <mainApplication>
+	}
  1d8:	fe cf       	rjmp	.-4      	; 0x1d6 <main+0x2>
 
 000001da <_exit>:

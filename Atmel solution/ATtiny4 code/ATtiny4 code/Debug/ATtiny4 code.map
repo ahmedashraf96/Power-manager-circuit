@@ -369,33 +369,49 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges
+.debug_aranges  0x00000000       0x58
  *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x38 Functionality.o
+ .debug_aranges
+                0x00000038       0x20 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0x2ab
+.debug_info     0x00000000      0x43d
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x2ab E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
+ .debug_info    0x000002ab      0x11c Functionality.o
+ .debug_info    0x000003c7       0x76 main.o
 
-.debug_abbrev   0x00000000      0x284
+.debug_abbrev   0x00000000      0x38e
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0x284 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
+ .debug_abbrev  0x00000284       0xb1 Functionality.o
+ .debug_abbrev  0x00000335       0x59 main.o
 
-.debug_line     0x00000000       0xd3
+.debug_line     0x00000000      0x325
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000       0xd3 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
+ .debug_line    0x000000d3      0x1ec Functionality.o
+ .debug_line    0x000002bf       0x66 main.o
 
-.debug_frame
+.debug_frame    0x00000000       0xb8
  *(.debug_frame)
+ .debug_frame   0x00000000       0x94 Functionality.o
+ .debug_frame   0x00000094       0x24 main.o
 
-.debug_str      0x00000000       0xf6
+.debug_str      0x00000000      0x2e3
  *(.debug_str)
  .debug_str     0x00000000       0xf6 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
+ .debug_str     0x000000f6      0x1dc Functionality.o
+ .debug_str     0x000002d2       0x11 main.o
+                                0x136 (size before relaxing)
 
-.debug_loc
+.debug_loc      0x00000000       0xea
  *(.debug_loc)
+ .debug_loc     0x00000000       0xea Functionality.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -415,8 +431,10 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges
+.debug_ranges   0x00000000       0x38
  *(.debug_ranges)
+ .debug_ranges  0x00000000       0x28 Functionality.o
+ .debug_ranges  0x00000028       0x10 main.o
 
 .debug_macro
  *(.debug_macro)

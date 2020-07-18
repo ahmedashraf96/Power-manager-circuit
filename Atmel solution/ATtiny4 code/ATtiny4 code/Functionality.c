@@ -32,7 +32,8 @@
 #define IO_PINS_DIR_INITIALIZATION      (0x01)
 #define IO_LOW_LEVEL					(0)
 #define IO_HIGH_LEVEL					(1)
-#define IO_PB2_PULLUP_ACTIVATE          (0x04)
+#define IO_PB2_PULLUP_ENABLE            (0x04)
+#define IO_PB2_PULLUP_ACTIVATE_PB0_LL   (0x04)
 #define POWER_DOWN_MODE_SELECTION		(0x04)
 #define SYSTEM_OFF_STATUS				(0)
 #define SYSTEM_ON_STATUS				(1)
@@ -101,9 +102,6 @@ void attiny4_init(void)
 	/*Clear EXTI0 flag*/
 	SET_BIT(EIFR , EIFR_INTF0);	
 
-	/*Enable global interrupts*/
-	SET_BIT(SREG , SREG_IBIT);
-
 
 	/**
       *	Timer initialization section
@@ -134,17 +132,19 @@ void attiny4_init(void)
 	 */
 	DDRB = IO_PINS_DIR_INITIALIZATION;
 	
-	/*Activating the pull up resistor for PB2*/
-	PUEB = IO_PB2_PULLUP_ACTIVATE;
+	/*Enabling the pull up resistor for PB2*/
+	PUEB = IO_PB2_PULLUP_ENABLE;
 	
-	/*Set PB0 to logic zero*/
-	CLEAR_BIT(PORTB , PORTB_PB0);
-
+	/*Activate the pull up resistor for PB2 and set PB0 voltage level to zero*/
+	PORTB = IO_PB2_PULLUP_ACTIVATE_PB0_LL;
 	
 	/**
-	 * Activating power down mode
+	 * Enabling all interrupts and activating power down mode
 	 */
 	
+	/*Enable global interrupts*/
+	SET_BIT(SREG , SREG_IBIT);
+
 	/*Select the power down mode*/
 	SMCR = POWER_DOWN_MODE_SELECTION;
 	
@@ -152,7 +152,7 @@ void attiny4_init(void)
 	SET_BIT(SMCR , SMCR_SE);
 	
 	/*Execute sleep instruction*/
-	__asm__ __volatile__ ( "sleep" "\n\t" :: );	
+	//__asm__ __volatile__ ( "sleep" "\n\t" :: );	
 	
 	return;
 }
@@ -189,7 +189,10 @@ void mainApplication(void)
 		
 		/*Report that the system has become in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
-				
+		
+		/*Reset the switch counter*/
+		gu16_switchCounter = 0;
+			
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
 		
@@ -253,6 +256,13 @@ void mainApplication(void)
 			/*Do nothing*/
 		}	
 	}
+	
+	/*Checking if the push button pressed accidentally for less than 1 second*/
+	else if( (GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
+	{
+		/*Initialize the system and enter power down mode*/
+		attiny4_init();
+	}	
 	else
 	{
 		/*Do nothing*/
@@ -291,10 +301,7 @@ void EXTI0_ISR(void)
 		gu8_systemStatus = SYSTEM_OFF_STATUS;
 	}
 	else if(EICRA == EXTI0_FALLING_EDGE_TRIGGER)
-	{
-		/*Reset the switch counter*/
-		gu16_switchCounter = 0;
-		
+	{		
 		/*Report that the system is in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
 	}
@@ -304,14 +311,14 @@ void EXTI0_ISR(void)
 void OCR0A_ISR(void)
 {
     /*Checking if the switch is pressed or not*/
-	if(GET_BIT(PINB , PINB_PB2) == IO_LOW_LEVEL)
+	if( GET_BIT(PINB , PINB_PB2) == IO_LOW_LEVEL )
 	{
         /*Increase the switch time counter if it's pressed*/
 		gu16_switchCounter++;
 	}
 
     /*Checking if there's no voltage present*/
-	else if( (GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT) )
+	else if( GET_BIT(PINB , PINB_PB1) == NO_VOLTAGE_PRESENT )
 	{
         /*Increase the voltage presence checking time counter*/
 		gu16_checkCounter++;
