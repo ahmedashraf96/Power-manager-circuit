@@ -193,6 +193,9 @@ void mainApplication(void)
 		
 		/*Report that the system has become in ON mode*/
 		gu8_systemStatus = SYSTEM_ON_STATUS;
+
+		/*Reset the switch counter*/
+		gu16_switchCounter = 0;
 		
 		/*Reset the voltage checking counter*/
 		gu16_checkCounter = 0;
