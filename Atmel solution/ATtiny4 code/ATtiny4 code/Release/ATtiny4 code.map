@@ -236,14 +236,14 @@ END GROUP
                 0x00000036                . = ALIGN (0x2)
  *(.text.*)
  .text.attiny4_init
-                0x00000036       0x4e Functionality.o
+                0x00000036       0x50 Functionality.o
                 0x00000036                attiny4_init
  .text.mainApplication
-                0x00000084       0xa2 Functionality.o
-                0x00000084                mainApplication
+                0x00000086       0xb0 Functionality.o
+                0x00000086                mainApplication
  .text.__vector_1
-                0x00000126       0x6c Functionality.o
-                0x00000126                __vector_1
+                0x00000136       0x5c Functionality.o
+                0x00000136                __vector_1
  .text.__vector_5
                 0x00000192       0x4a Functionality.o
                 0x00000192                __vector_5
