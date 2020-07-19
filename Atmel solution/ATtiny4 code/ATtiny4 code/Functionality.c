@@ -213,6 +213,9 @@ void mainApplication(void)
 	{
 		/*Report that the system is in OFF mode*/
 		gu8_systemStatus = SYSTEM_OFF_STATUS;
+
+		/*Reset the switch counter*/
+		gu16_switchCounter = 0;
 		
 		/*Initialize the system and enter power down mode*/
 		attiny4_init();				
