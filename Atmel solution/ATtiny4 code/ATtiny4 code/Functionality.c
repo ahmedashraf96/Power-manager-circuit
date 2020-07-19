@@ -33,7 +33,7 @@
 #define IO_LOW_LEVEL					(0)
 #define IO_HIGH_LEVEL					(1)
 #define IO_PB1_PB2_PULLUP_ENABLE        (0x06)
-#define IO_PB0_LOW_LEVEL                (0x00)
+#define IO_PB0_LL_PB1_PB2_PUP_ACTIVE    (0x06)
 #define POWER_DOWN_MODE_SELECTION		(0x04)
 #define SYSTEM_OFF_STATUS				(0)
 #define SYSTEM_ON_STATUS				(1)
@@ -105,8 +105,8 @@ void attiny4_init(void)
 	/*Enabling the pull up resistor for PB2*/
 	PUEB = IO_PB1_PB2_PULLUP_ENABLE;
 	
-	/*Activate the pull up resistor for PB2 and set PB0 voltage level to zero*/
-	PORTB = IO_PB0_LOW_LEVEL;
+	/*Activate the pull up resistor for PB1, PB2 and set PB0 voltage level to zero*/
+	PORTB = IO_PB0_LL_PB1_PB2_PUP_ACTIVE;
 
 			
 	/**
