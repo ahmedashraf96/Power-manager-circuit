@@ -168,7 +168,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x1e8
+.text           0x00000000      0x196
  *(.vectors)
  .vectors       0x00000000       0x14 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
                 0x00000000                __vector_default
@@ -225,6 +225,8 @@ END GROUP
  *(.init9)
  *(.text)
  .text          0x00000034        0x2 E:/ATMEL Studio/7.0/Packs/atmel/ATtiny_DFP/1.1.102/gcc/dev/attiny4/avrtiny/crtattiny4.o
+                0x00000034                __vector_1
+                0x00000034                __bad_interrupt
                 0x00000034                __vector_6
                 0x00000034                __vector_3
                 0x00000034                __vector_7
@@ -232,29 +234,25 @@ END GROUP
                 0x00000034                __vector_9
                 0x00000034                __vector_2
                 0x00000034                __vector_8
-                0x00000034                __bad_interrupt
                 0x00000036                . = ALIGN (0x2)
  *(.text.*)
  .text.attiny4_init
-                0x00000036       0x4e Functionality.o
+                0x00000036       0x5c Functionality.o
                 0x00000036                attiny4_init
  .text.mainApplication
-                0x00000084       0xb4 Functionality.o
-                0x00000084                mainApplication
- .text.__vector_1
-                0x00000138       0x5c Functionality.o
-                0x00000138                __vector_1
+                0x00000092       0xbe Functionality.o
+                0x00000092                mainApplication
  .text.__vector_5
-                0x00000194       0x4a Functionality.o
-                0x00000194                __vector_5
+                0x00000150       0x3c Functionality.o
+                0x00000150                __vector_5
  .text.startup.main
-                0x000001de        0x6 main.o
-                0x000001de                main
-                0x000001e4                . = ALIGN (0x2)
+                0x0000018c        0x6 main.o
+                0x0000018c                main
+                0x00000192                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000001e4        0x0 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
-                0x000001e4                _exit
-                0x000001e4                exit
+ .fini9         0x00000192        0x0 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
+                0x00000192                _exit
+                0x00000192                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -273,11 +271,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000001e4        0x4 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
+ .fini0         0x00000192        0x4 e:/atmel studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avrtiny\libgcc.a(_exit.o)
  *(.fini0)
-                0x000001e8                _etext = .
+                0x00000196                _etext = .
 
-.data           0x00800040        0x0 load address 0x000001e8
+.data           0x00800040        0x0 load address 0x00000196
                 [!provide]                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -288,32 +286,26 @@ END GROUP
                 0x00800040                _edata = .
                 [!provide]                PROVIDE (__data_end, .)
 
-.bss            0x00800040        0x6
+.bss            0x00800040        0x3
                 0x00800040                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
  .bss.gu8_systemStatus
                 0x00800040        0x1 Functionality.o
                 0x00800040                gu8_systemStatus
- .bss.gu8_voltageCheckTrials
-                0x00800041        0x1 Functionality.o
-                0x00800041                gu8_voltageCheckTrials
- .bss.gu16_checkCounter
-                0x00800042        0x2 Functionality.o
-                0x00800042                gu16_checkCounter
  .bss.gu16_switchCounter
-                0x00800044        0x2 Functionality.o
-                0x00800044                gu16_switchCounter
+                0x00800041        0x2 Functionality.o
+                0x00800041                gu16_switchCounter
  *(COMMON)
-                0x00800046                PROVIDE (__bss_end, .)
-                0x000001e8                __data_load_start = LOADADDR (.data)
-                0x000001e8                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00800043                PROVIDE (__bss_end, .)
+                0x00000196                __data_load_start = LOADADDR (.data)
+                0x00000196                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x00800046        0x0
+.noinit         0x00800043        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x00800046                _end = .
+                0x00800043                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .lock
