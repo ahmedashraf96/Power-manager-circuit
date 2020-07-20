@@ -53,8 +53,8 @@
 /*Variable used in counting switch time being pressed*/
 u16_t gu16_switchCounter = 0;
 
-/*Variable used to carry the system current status (ON or OFF)*/
-u8_t  gu8_systemStatus = 0;
+/*Variable used to carry the system current status (ON or OFF) [The variable will keep its value till the power goes OFF]*/
+u8_t  gu8_systemStatus __attribute__((section(".noinit")));
 
 /************************************************************************/
 /*                Power manager functions implementation                */
@@ -149,7 +149,7 @@ void mainApplication(void)
 	if( GET_BIT(PINB , PINB_PB2) == IO_LOW_LEVEL )
 	{	
 		/*If the switch is pressed for more than one second and the system is in OFF mode then go to ON mode*/	
-		if( (gu16_switchCounter > ONE_SECOND && gu16_switchCounter <= TWO_SECONDS) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
+		if( (gu16_switchCounter > ONE_SECOND && gu16_switchCounter < TWO_SECONDS) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
 		{			
 			/*Report that the system is in ON mode*/
 			gu8_systemStatus = SYSTEM_ON_STATUS;
@@ -162,24 +162,8 @@ void mainApplication(void)
 		}
 
 		/*If the switch is pressed for more than one second and the system is in ON mode then go to OFF mode*/
-		else if( (gu16_switchCounter > ONE_SECOND && gu16_switchCounter < TWO_SECONDS) && (gu8_systemStatus == SYSTEM_ON_STATUS) )
+		else if( ((gu16_switchCounter > ONE_SECOND && gu16_switchCounter < TWO_SECONDS) && (gu8_systemStatus == SYSTEM_ON_STATUS)) || (gu16_switchCounter >= TEN_SECONDS) )
 		{
-			/*Reset the switch counter*/
-			gu16_switchCounter = 0;
-
-			/*Report that the system is in OFF mode*/
-			gu8_systemStatus = SYSTEM_OFF_STATUS;
-			
-			/*De-Activate PB0*/
-			CLEAR_BIT(PORTB , PORTB_PB0);			
-		}
-
-		/*If the switch is pressed for more than ten seconds and the system is in ON mode then go to OFF mode and sleep*/		
-		else if( (gu16_switchCounter >= TEN_SECONDS) && (gu8_systemStatus == SYSTEM_ON_STATUS) )
-		{
-			/*Reset the switch counter*/
-			gu16_switchCounter = 0;
-
 			/*Report that the system is in OFF mode*/
 			gu8_systemStatus = SYSTEM_OFF_STATUS;
 			
@@ -188,12 +172,12 @@ void mainApplication(void)
 			
 			/*Select the idle mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-	
+			
 			/*Sleep enable*/
 			sleep_enable();
-	
+			
 			/*Execute sleep instruction*/
-			sleep_cpu();						
+			sleep_cpu();
 		}
 		
 		/*If the switch counter is reset then enable the timer and increase the switch counter by 1*/

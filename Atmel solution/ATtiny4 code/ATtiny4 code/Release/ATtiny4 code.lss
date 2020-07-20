@@ -3,23 +3,25 @@ ATtiny4 code.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000196  00000000  00000000  00000074  2**1
+  0 .text         00000178  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800040  00800040  0000020a  2**0
+  1 .data         00000000  00800040  00800040  000001ec  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          00000003  00800040  00800040  0000020a  2**0
+  2 .bss          00000002  00800040  00800040  000001ec  2**0
                   ALLOC
-  3 .comment      00000030  00000000  00000000  0000020a  2**0
+  3 .noinit       00000001  00800042  00800042  000001ec  2**0
+                  ALLOC
+  4 .comment      00000030  00000000  00000000  000001ec  2**0
                   CONTENTS, READONLY
-  4 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000023c  2**2
+  5 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000021c  2**2
                   CONTENTS, READONLY
-  5 .debug_info   000002ab  00000000  00000000  00000278  2**0
+  6 .debug_info   000002ab  00000000  00000000  00000258  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000284  00000000  00000000  00000523  2**0
+  7 .debug_abbrev 00000284  00000000  00000000  00000503  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000000d3  00000000  00000000  000007a7  2**0
+  8 .debug_line   000000d3  00000000  00000000  00000787  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_str    000000f6  00000000  00000000  0000087a  2**0
+  9 .debug_str    000000f6  00000000  00000000  0000085a  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -30,7 +32,7 @@ Disassembly of section .text:
    4:	17 c0       	rjmp	.+46     	; 0x34 <__bad_interrupt>
    6:	16 c0       	rjmp	.+44     	; 0x34 <__bad_interrupt>
    8:	15 c0       	rjmp	.+42     	; 0x34 <__bad_interrupt>
-   a:	a2 c0       	rjmp	.+324    	; 0x150 <__vector_5>
+   a:	93 c0       	rjmp	.+294    	; 0x132 <__vector_5>
    c:	13 c0       	rjmp	.+38     	; 0x34 <__bad_interrupt>
    e:	12 c0       	rjmp	.+36     	; 0x34 <__bad_interrupt>
   10:	11 c0       	rjmp	.+34     	; 0x34 <__bad_interrupt>
@@ -54,17 +56,17 @@ Disassembly of section .text:
   28:	1d 93       	st	X+, r17
 
 0000002a <.do_clear_bss_start>:
-  2a:	a3 34       	cpi	r26, 0x43	; 67
+  2a:	a2 34       	cpi	r26, 0x42	; 66
   2c:	b2 07       	cpc	r27, r18
   2e:	e1 f7       	brne	.-8      	; 0x28 <.do_clear_bss_loop>
-  30:	ad d0       	rcall	.+346    	; 0x18c <main>
-  32:	af c0       	rjmp	.+350    	; 0x192 <_exit>
+  30:	9e d0       	rcall	.+316    	; 0x16e <main>
+  32:	a0 c0       	rjmp	.+320    	; 0x174 <_exit>
 
 00000034 <__bad_interrupt>:
   34:	e5 cf       	rjmp	.-54     	; 0x0 <__vectors>
 
 00000036 <attiny4_init>:
-  36:	e1 e4       	ldi	r30, 0x41	; 65
+  36:	e0 e4       	ldi	r30, 0x40	; 64
   38:	f0 e0       	ldi	r31, 0x00	; 0
   3a:	11 93       	st	Z+, r17
   3c:	10 83       	st	Z, r17
@@ -93,7 +95,7 @@ Disassembly of section .text:
   6a:	44 e0       	ldi	r20, 0x04	; 4
   6c:	43 b9       	out	0x03, r20	; 3
   6e:	42 b9       	out	0x02, r20	; 2
-  70:	e0 e4       	ldi	r30, 0x40	; 64
+  70:	e2 e4       	ldi	r30, 0x42	; 66
   72:	f0 e0       	ldi	r31, 0x00	; 0
   74:	40 81       	ld	r20, Z
   76:	45 35       	cpi	r20, 0x55	; 85
@@ -113,8 +115,8 @@ Disassembly of section .text:
 
 00000092 <mainApplication>:
   92:	02 99       	sbic	0x00, 2	; 0
-  94:	4c c0       	rjmp	.+152    	; 0x12e <__DATA_REGION_LENGTH__+0x2e>
-  96:	e1 e4       	ldi	r30, 0x41	; 65
+  94:	3d c0       	rjmp	.+122    	; 0x110 <__DATA_REGION_LENGTH__+0x10>
+  96:	e0 e4       	ldi	r30, 0x40	; 64
   98:	f0 e0       	ldi	r31, 0x00	; 0
   9a:	40 81       	ld	r20, Z
   9c:	ef 5f       	subi	r30, 0xFF	; 255
@@ -122,17 +124,17 @@ Disassembly of section .text:
   a0:	50 81       	ld	r21, Z
   a2:	e1 50       	subi	r30, 0x01	; 1
   a4:	f0 40       	sbci	r31, 0x00	; 0
-  a6:	84 2f       	mov	r24, r20
-  a8:	95 2f       	mov	r25, r21
-  aa:	85 51       	subi	r24, 0x15	; 21
-  ac:	91 0b       	sbc	r25, r17
-  ae:	84 31       	cpi	r24, 0x14	; 20
-  b0:	91 07       	cpc	r25, r17
-  b2:	c0 f4       	brcc	.+48     	; 0xe4 <mainApplication+0x52>
-  b4:	a0 e4       	ldi	r26, 0x40	; 64
+  a6:	64 2f       	mov	r22, r20
+  a8:	75 2f       	mov	r23, r21
+  aa:	65 51       	subi	r22, 0x15	; 21
+  ac:	71 0b       	sbc	r23, r17
+  ae:	63 31       	cpi	r22, 0x13	; 19
+  b0:	71 07       	cpc	r23, r17
+  b2:	80 f4       	brcc	.+32     	; 0xd4 <mainApplication+0x42>
+  b4:	a2 e4       	ldi	r26, 0x42	; 66
   b6:	b0 e0       	ldi	r27, 0x00	; 0
-  b8:	6c 91       	ld	r22, X
-  ba:	6a 3a       	cpi	r22, 0xAA	; 170
+  b8:	4c 91       	ld	r20, X
+  ba:	4a 3a       	cpi	r20, 0xAA	; 170
   bc:	41 f4       	brne	.+16     	; 0xce <mainApplication+0x3c>
   be:	45 e5       	ldi	r20, 0x55	; 85
   c0:	4c 93       	st	X, r20
@@ -142,111 +144,96 @@ Disassembly of section .text:
   c8:	50 83       	st	Z, r21
   ca:	10 9a       	sbi	0x02, 0	; 2
   cc:	08 95       	ret
-  ce:	83 31       	cpi	r24, 0x13	; 19
-  d0:	91 07       	cpc	r25, r17
-  d2:	b1 f0       	breq	.+44     	; 0x100 <__DATA_REGION_LENGTH__>
-  d4:	65 35       	cpi	r22, 0x55	; 85
-  d6:	41 f5       	brne	.+80     	; 0x128 <__DATA_REGION_LENGTH__+0x28>
-  d8:	11 93       	st	Z+, r17
-  da:	10 83       	st	Z, r17
-  dc:	4a ea       	ldi	r20, 0xAA	; 170
-  de:	4c 93       	st	X, r20
-  e0:	10 98       	cbi	0x02, 0	; 2
-  e2:	08 95       	ret
-  e4:	48 3c       	cpi	r20, 0xC8	; 200
-  e6:	51 07       	cpc	r21, r17
-  e8:	58 f0       	brcs	.+22     	; 0x100 <__DATA_REGION_LENGTH__>
-  ea:	a0 e4       	ldi	r26, 0x40	; 64
-  ec:	b0 e0       	ldi	r27, 0x00	; 0
-  ee:	4c 91       	ld	r20, X
-  f0:	45 35       	cpi	r20, 0x55	; 85
-  f2:	d1 f4       	brne	.+52     	; 0x128 <__DATA_REGION_LENGTH__+0x28>
-  f4:	11 93       	st	Z+, r17
-  f6:	10 83       	st	Z, r17
-  f8:	4a ea       	ldi	r20, 0xAA	; 170
-  fa:	4c 93       	st	X, r20
-  fc:	10 98       	cbi	0x02, 0	; 2
-  fe:	1f c0       	rjmp	.+62     	; 0x13e <__DATA_REGION_LENGTH__+0x3e>
- 100:	45 2b       	or	r20, r21
- 102:	91 f4       	brne	.+36     	; 0x128 <__DATA_REGION_LENGTH__+0x28>
- 104:	4d b5       	in	r20, 0x2d	; 45
- 106:	5e b5       	in	r21, 0x2e	; 46
- 108:	41 60       	ori	r20, 0x01	; 1
- 10a:	5e bd       	out	0x2e, r21	; 46
- 10c:	4d bd       	out	0x2d, r20	; 45
- 10e:	e1 e4       	ldi	r30, 0x41	; 65
- 110:	f0 e0       	ldi	r31, 0x00	; 0
- 112:	40 81       	ld	r20, Z
- 114:	ef 5f       	subi	r30, 0xFF	; 255
- 116:	ff 4f       	sbci	r31, 0xFF	; 255
- 118:	50 81       	ld	r21, Z
- 11a:	e1 50       	subi	r30, 0x01	; 1
- 11c:	f0 40       	sbci	r31, 0x00	; 0
- 11e:	4f 5f       	subi	r20, 0xFF	; 255
- 120:	5f 4f       	sbci	r21, 0xFF	; 255
- 122:	41 93       	st	Z+, r20
- 124:	50 83       	st	Z, r21
- 126:	08 95       	ret
+  ce:	45 35       	cpi	r20, 0x55	; 85
+  d0:	e1 f4       	brne	.+56     	; 0x10a <__DATA_REGION_LENGTH__+0xa>
+  d2:	03 c0       	rjmp	.+6      	; 0xda <mainApplication+0x48>
+  d4:	48 3c       	cpi	r20, 0xC8	; 200
+  d6:	51 07       	cpc	r21, r17
+  d8:	30 f0       	brcs	.+12     	; 0xe6 <mainApplication+0x54>
+  da:	4a ea       	ldi	r20, 0xAA	; 170
+  dc:	e2 e4       	ldi	r30, 0x42	; 66
+  de:	f0 e0       	ldi	r31, 0x00	; 0
+  e0:	40 83       	st	Z, r20
+  e2:	10 98       	cbi	0x02, 0	; 2
+  e4:	1d c0       	rjmp	.+58     	; 0x120 <__DATA_REGION_LENGTH__+0x20>
+  e6:	45 2b       	or	r20, r21
+  e8:	81 f4       	brne	.+32     	; 0x10a <__DATA_REGION_LENGTH__+0xa>
+  ea:	4d b5       	in	r20, 0x2d	; 45
+  ec:	5e b5       	in	r21, 0x2e	; 46
+  ee:	41 60       	ori	r20, 0x01	; 1
+  f0:	5e bd       	out	0x2e, r21	; 46
+  f2:	4d bd       	out	0x2d, r20	; 45
+  f4:	40 81       	ld	r20, Z
+  f6:	ef 5f       	subi	r30, 0xFF	; 255
+  f8:	ff 4f       	sbci	r31, 0xFF	; 255
+  fa:	50 81       	ld	r21, Z
+  fc:	e1 50       	subi	r30, 0x01	; 1
+  fe:	f0 40       	sbci	r31, 0x00	; 0
+ 100:	4f 5f       	subi	r20, 0xFF	; 255
+ 102:	5f 4f       	sbci	r21, 0xFF	; 255
+ 104:	41 93       	st	Z+, r20
+ 106:	50 83       	st	Z, r21
+ 108:	08 95       	ret
+ 10a:	4a b7       	in	r20, 0x3a	; 58
+ 10c:	41 7f       	andi	r20, 0xF1	; 241
+ 10e:	0b c0       	rjmp	.+22     	; 0x126 <__DATA_REGION_LENGTH__+0x26>
+ 110:	02 9b       	sbis	0x00, 2	; 0
+ 112:	0e c0       	rjmp	.+28     	; 0x130 <__DATA_REGION_LENGTH__+0x30>
+ 114:	46 e8       	ldi	r20, 0x86	; 134
+ 116:	51 e0       	ldi	r21, 0x01	; 1
+ 118:	41 50       	subi	r20, 0x01	; 1
+ 11a:	50 40       	sbci	r21, 0x00	; 0
+ 11c:	e9 f7       	brne	.-6      	; 0x118 <__DATA_REGION_LENGTH__+0x18>
+ 11e:	00 c0       	rjmp	.+0      	; 0x120 <__DATA_REGION_LENGTH__+0x20>
+ 120:	4a b7       	in	r20, 0x3a	; 58
+ 122:	41 7f       	andi	r20, 0xF1	; 241
+ 124:	44 60       	ori	r20, 0x04	; 4
+ 126:	4a bf       	out	0x3a, r20	; 58
  128:	4a b7       	in	r20, 0x3a	; 58
- 12a:	41 7f       	andi	r20, 0xF1	; 241
- 12c:	0b c0       	rjmp	.+22     	; 0x144 <__DATA_REGION_LENGTH__+0x44>
- 12e:	02 9b       	sbis	0x00, 2	; 0
- 130:	0e c0       	rjmp	.+28     	; 0x14e <__DATA_REGION_LENGTH__+0x4e>
- 132:	46 e8       	ldi	r20, 0x86	; 134
- 134:	51 e0       	ldi	r21, 0x01	; 1
- 136:	41 50       	subi	r20, 0x01	; 1
- 138:	50 40       	sbci	r21, 0x00	; 0
- 13a:	e9 f7       	brne	.-6      	; 0x136 <__DATA_REGION_LENGTH__+0x36>
- 13c:	00 c0       	rjmp	.+0      	; 0x13e <__DATA_REGION_LENGTH__+0x3e>
- 13e:	4a b7       	in	r20, 0x3a	; 58
- 140:	41 7f       	andi	r20, 0xF1	; 241
- 142:	44 60       	ori	r20, 0x04	; 4
- 144:	4a bf       	out	0x3a, r20	; 58
- 146:	4a b7       	in	r20, 0x3a	; 58
- 148:	41 60       	ori	r20, 0x01	; 1
- 14a:	4a bf       	out	0x3a, r20	; 58
- 14c:	88 95       	sleep
- 14e:	08 95       	ret
+ 12a:	41 60       	ori	r20, 0x01	; 1
+ 12c:	4a bf       	out	0x3a, r20	; 58
+ 12e:	88 95       	sleep
+ 130:	08 95       	ret
 
-00000150 <__vector_5>:
- 150:	1f 93       	push	r17
- 152:	0f 93       	push	r16
- 154:	0f b7       	in	r16, 0x3f	; 63
- 156:	0f 93       	push	r16
- 158:	10 e0       	ldi	r17, 0x00	; 0
- 15a:	4f 93       	push	r20
- 15c:	5f 93       	push	r21
- 15e:	ef 93       	push	r30
- 160:	ff 93       	push	r31
- 162:	e1 e4       	ldi	r30, 0x41	; 65
- 164:	f0 e0       	ldi	r31, 0x00	; 0
- 166:	40 81       	ld	r20, Z
- 168:	ef 5f       	subi	r30, 0xFF	; 255
- 16a:	ff 4f       	sbci	r31, 0xFF	; 255
- 16c:	50 81       	ld	r21, Z
- 16e:	e1 50       	subi	r30, 0x01	; 1
- 170:	f0 40       	sbci	r31, 0x00	; 0
- 172:	4f 5f       	subi	r20, 0xFF	; 255
- 174:	5f 4f       	sbci	r21, 0xFF	; 255
- 176:	41 93       	st	Z+, r20
- 178:	50 83       	st	Z, r21
- 17a:	ff 91       	pop	r31
- 17c:	ef 91       	pop	r30
- 17e:	5f 91       	pop	r21
- 180:	4f 91       	pop	r20
- 182:	0f 91       	pop	r16
- 184:	0f bf       	out	0x3f, r16	; 63
- 186:	0f 91       	pop	r16
- 188:	1f 91       	pop	r17
- 18a:	18 95       	reti
+00000132 <__vector_5>:
+ 132:	1f 93       	push	r17
+ 134:	0f 93       	push	r16
+ 136:	0f b7       	in	r16, 0x3f	; 63
+ 138:	0f 93       	push	r16
+ 13a:	10 e0       	ldi	r17, 0x00	; 0
+ 13c:	4f 93       	push	r20
+ 13e:	5f 93       	push	r21
+ 140:	ef 93       	push	r30
+ 142:	ff 93       	push	r31
+ 144:	e0 e4       	ldi	r30, 0x40	; 64
+ 146:	f0 e0       	ldi	r31, 0x00	; 0
+ 148:	40 81       	ld	r20, Z
+ 14a:	ef 5f       	subi	r30, 0xFF	; 255
+ 14c:	ff 4f       	sbci	r31, 0xFF	; 255
+ 14e:	50 81       	ld	r21, Z
+ 150:	e1 50       	subi	r30, 0x01	; 1
+ 152:	f0 40       	sbci	r31, 0x00	; 0
+ 154:	4f 5f       	subi	r20, 0xFF	; 255
+ 156:	5f 4f       	sbci	r21, 0xFF	; 255
+ 158:	41 93       	st	Z+, r20
+ 15a:	50 83       	st	Z, r21
+ 15c:	ff 91       	pop	r31
+ 15e:	ef 91       	pop	r30
+ 160:	5f 91       	pop	r21
+ 162:	4f 91       	pop	r20
+ 164:	0f 91       	pop	r16
+ 166:	0f bf       	out	0x3f, r16	; 63
+ 168:	0f 91       	pop	r16
+ 16a:	1f 91       	pop	r17
+ 16c:	18 95       	reti
 
-0000018c <main>:
- 18c:	54 df       	rcall	.-344    	; 0x36 <attiny4_init>
- 18e:	81 df       	rcall	.-254    	; 0x92 <mainApplication>
- 190:	fe cf       	rjmp	.-4      	; 0x18e <main+0x2>
+0000016e <main>:
+ 16e:	63 df       	rcall	.-314    	; 0x36 <attiny4_init>
+ 170:	90 df       	rcall	.-224    	; 0x92 <mainApplication>
+ 172:	fe cf       	rjmp	.-4      	; 0x170 <main+0x2>
 
-00000192 <_exit>:
- 192:	f8 94       	cli
+00000174 <_exit>:
+ 174:	f8 94       	cli
 
-00000194 <__stop_program>:
- 194:	ff cf       	rjmp	.-2      	; 0x194 <__stop_program>
+00000176 <__stop_program>:
+ 176:	ff cf       	rjmp	.-2      	; 0x176 <__stop_program>
