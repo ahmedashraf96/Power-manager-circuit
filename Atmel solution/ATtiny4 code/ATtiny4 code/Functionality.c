@@ -34,8 +34,8 @@
 #define IO_LOW_LEVEL					(0)
 #define IO_HIGH_LEVEL					(1)
 #define IO_PB2_PULLUP_ENABLE            (0x04)
-#define IO_PB0_LL_PB2_PUP_ACTIVE        (0x04)
-#define IO_PB0_HL_PB2_PUP_ACTIVE        (0x05)
+#define IO_PB0_LL                       (0x00)
+#define IO_PB0_HL                       (0x01)
 #define SYSTEM_OFF_STATUS				(0xAA)
 #define SYSTEM_ON_STATUS				(0x55)
 #define ONE_SECOND                      (20)
@@ -62,6 +62,40 @@ u8_t  gu8_systemStatus __attribute__((section(".noinit")));
 void attiny4_init(void)
 { 
 	/**
+      *	DIO initialization section
+	  */
+			
+	/*Check the current state of the system to turn it OFF or ON*/
+	if( gu8_systemStatus == SYSTEM_ON_STATUS )
+	{
+		/*If the system is already ON then set PB0 to +5v voltage level*/
+		PORTB = IO_PB0_HL;
+	} 
+	else if( gu8_systemStatus == SYSTEM_OFF_STATUS )
+	{
+		/*If the system is already ON then set PB0 to 0v voltage level*/
+		PORTB = IO_PB0_LL;
+	}
+	else
+	{
+		/*Report that the system is in OFF mode*/
+		gu8_systemStatus = SYSTEM_OFF_STATUS;
+	}
+	
+   /**
+	 * IO Pins initialization by:
+	 * PB0 -> Output
+	 * PB1 -> Input
+	 * PB2 -> Input
+	 * PB3 -> Input
+	 */
+	DDRB = IO_PINS_DIR_INITIALIZATION;
+	
+	/*Enabling the pull up resistor for PB2*/
+	PUEB = IO_PB2_PULLUP_ENABLE;
+
+
+	/**
 	  * Adjusting the MCU CLK section
 	  */
 	
@@ -74,40 +108,6 @@ void attiny4_init(void)
 	/*Enable the pre-scaler of the main CLK by 256 which gives 31.25 KHz*/
 	CLKPSR = MAIN_CLK_PRESCALING_BY_256;
 	
-
-	/**
-      *	DIO initialization section
-	  */
-	
-	/**
-	 * IO Pins initialization by:
-	 * PB0 -> Output
-	 * PB1 -> Input
-	 * PB2 -> Input
-	 * PB3 -> Input
-	 */
-	DDRB = IO_PINS_DIR_INITIALIZATION;
-	
-	/*Enabling the pull up resistor for PB2*/
-	PUEB = IO_PB2_PULLUP_ENABLE;
-		
-	/*Check the current state of the system to turn it OFF or ON*/
-	if( gu8_systemStatus == SYSTEM_ON_STATUS )
-	{
-		/*If the system is already ON then set PB0 to +5v voltage level with activating PB2 pull up resistor*/
-		PORTB = IO_PB0_HL_PB2_PUP_ACTIVE;
-	} 
-	else if( gu8_systemStatus == SYSTEM_OFF_STATUS )
-	{
-		/*If the system is already ON then set PB0 to 0v voltage level with activating PB2 pull up resistor*/
-		PORTB = IO_PB0_LL_PB2_PUP_ACTIVE;
-	}
-	else
-	{
-		/*Report that the system is in OFF mode*/
-		gu8_systemStatus = SYSTEM_OFF_STATUS;
-	}
-
 			
 	/**
       *	Timer initialization section
@@ -158,11 +158,14 @@ void mainApplication(void)
 			
 			/*De-activate PB0*/
 			CLEAR_BIT(PORTB , PORTB_PB0);
-	
+			
 			/*Disable the timer*/
 			TCCR0 = 0;
+			
+			/*Disable global interrupts*/
+			CLEAR_BIT(SREG , SREG_IBIT);
 		
-			/*Select the idle mode*/
+			/*Select the power down mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			
 			/*Sleep enable*/
@@ -199,9 +202,12 @@ void mainApplication(void)
 	{
 		/*Delay to make sure the bouncing has gone*/
 		_delay_ms(50);
-		
+
 		/*Disable the timer*/
 		TCCR0 = 0;
+		
+		/*Disable global interrupts*/
+		CLEAR_BIT(SREG , SREG_IBIT);
 		
 		/*Select the power down mode*/
 		set_sleep_mode(SLEEP_MODE_PWR_DOWN);
