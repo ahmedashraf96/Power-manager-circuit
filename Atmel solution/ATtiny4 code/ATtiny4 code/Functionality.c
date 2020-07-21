@@ -35,10 +35,9 @@
 #define IO_HIGH_LEVEL					(1)
 #define IO_PB2_PULLUP_ENABLE            (0x04)
 #define IO_PB0_LL_PB2_PUP_ACTIVE        (0x04)
+#define IO_PB0_HL_PB2_PUP_ACTIVE        (0x05)
 #define SYSTEM_OFF_STATUS				(0xAA)
 #define SYSTEM_ON_STATUS				(0x55)
-#define TWO_SEC_DELAY                   (2000)
-#define ONE_MS_DELAY                    (31)
 #define ONE_SECOND                      (20)
 #define TWO_SECONDS                     (40)
 #define TEN_SECONDS                     (200)
@@ -61,18 +60,10 @@ u8_t  gu8_systemStatus __attribute__((section(".noinit")));
 /************************************************************************/
 
 void attiny4_init(void)
-{
-	
-	/*Reset the switch counter*/
-	gu16_switchCounter = 0;
- 
- 
+{ 
 	/**
 	  * Adjusting the MCU CLK section
 	  */
-
-	/*Disable global interrupts*/
-	CLEAR_BIT(SREG , SREG_IBIT);
 	
 	/*Select the internal oscillator of the MCU with 8MHz*/
 	CLKMSR = INTERNAL_OSC_SELECT_8MHZ;
@@ -83,23 +74,6 @@ void attiny4_init(void)
 	/*Enable the pre-scaler of the main CLK by 256 which gives 31.25 KHz*/
 	CLKPSR = MAIN_CLK_PRESCALING_BY_256;
 	
-			
-	/**
-      *	Timer initialization section
-	  */
-	
-	/*Selecting CTC mode with OCR0A*/
-	TCCR0 = TIMER0_CTC_MODE_SELECTION;
-	
-	/*Clearing timer/counter register*/
-	TCNT0 = 0;
-	
-	/*Adjusting TIMER0 to fire CTC interrupt every 50ms for 8MHz frequency and prescaler by 8*/
-	OCR0A = TIMER0_50MS_TICK;
-	
-	/*Enable CTC mode interrupt*/
-	TIMSK0 = TIMER0_OCR0A_INT_EN;
-		
 
 	/**
       *	DIO initialization section
@@ -116,26 +90,41 @@ void attiny4_init(void)
 	
 	/*Enabling the pull up resistor for PB2*/
 	PUEB = IO_PB2_PULLUP_ENABLE;
-	
-	/*Activate the pull up resistor for PB2 and set PB0 voltage level to zero*/
-	PORTB = IO_PB0_LL_PB2_PUP_ACTIVE;
-	
+		
 	/*Check the current state of the system to turn it OFF or ON*/
 	if( gu8_systemStatus == SYSTEM_ON_STATUS )
 	{
-		/*If the system is already ON then set PB0 to +5v voltage level*/
-		SET_BIT(PORTB , PORTB_PB0);
+		/*If the system is already ON then set PB0 to +5v voltage level with activating PB2 pull up resistor*/
+		PORTB = IO_PB0_HL_PB2_PUP_ACTIVE;
 	} 
 	else if( gu8_systemStatus == SYSTEM_OFF_STATUS )
 	{
-		/*If the system is already OFF then set PB0 to 0v voltage level*/
-		CLEAR_BIT(PORTB , PORTB_PB0);
+		/*If the system is already ON then set PB0 to 0v voltage level with activating PB2 pull up resistor*/
+		PORTB = IO_PB0_LL_PB2_PUP_ACTIVE;
 	}
 	else
 	{
 		/*Report that the system is in OFF mode*/
 		gu8_systemStatus = SYSTEM_OFF_STATUS;
 	}
+
+			
+	/**
+      *	Timer initialization section
+	  */
+	
+	/*Selecting CTC mode with OCR0A*/
+	TCCR0 = TIMER0_CTC_MODE_SELECTION;
+	
+	/*Clearing timer/counter register*/
+	TCNT0 = 0;
+	
+	/*Adjusting TIMER0 to fire CTC interrupt every 50ms for 8MHz frequency and pre-scaler by 8*/
+	OCR0A = TIMER0_50MS_TICK;
+	
+	/*Enable CTC mode interrupt*/
+	TIMSK0 = TIMER0_OCR0A_INT_EN;
+		
 				
 	/*Enable global interrupts*/
 	SET_BIT(SREG , SREG_IBIT);
@@ -169,7 +158,10 @@ void mainApplication(void)
 			
 			/*De-activate PB0*/
 			CLEAR_BIT(PORTB , PORTB_PB0);
-			
+	
+			/*Disable the timer*/
+			TCCR0 = 0;
+		
 			/*Select the idle mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			
@@ -177,7 +169,7 @@ void mainApplication(void)
 			sleep_enable();
 			
 			/*Execute sleep instruction*/
-			sleep_cpu();
+			//sleep_cpu();
 		}
 		
 		/*If the switch counter is reset then enable the timer and increase the switch counter by 1*/
@@ -200,13 +192,16 @@ void mainApplication(void)
 			sleep_enable();
 	
 			/*Execute sleep instruction*/
-			sleep_cpu();			
+			//sleep_cpu();			
 		}
 	}
 	else if( GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL )
 	{
 		/*Delay to make sure the bouncing has gone*/
 		_delay_ms(50);
+		
+		/*Disable the timer*/
+		TCCR0 = 0;
 		
 		/*Select the power down mode*/
 		set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -215,7 +210,7 @@ void mainApplication(void)
 		sleep_enable();
 			
 		/*Execute sleep instruction*/
-		sleep_cpu();
+		//sleep_cpu();
 	}
 	else
 	{
