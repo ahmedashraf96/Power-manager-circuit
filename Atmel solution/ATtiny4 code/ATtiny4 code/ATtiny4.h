@@ -2,7 +2,7 @@
  * @file    ATtiny4.h
  * @author  Ahmed Ashraf (ahmedashrafelnaqeeb@gmail.com)
  * @brief   This header file contains the important definitions for ATtiny4 MCU
- * @version 1.1
+ * @version 1.2
  * @date    2020-07-13
  * 
  * @copyright Copyright (c) 2020
@@ -36,11 +36,6 @@ typedef unsigned short u16_t;
 /*Status register*/
 #define SREG   (*(volatile u8_t*)(0x3F))
 
-/*External interrupt registers*/
-#define EICRA  (*(volatile u8_t*)(0x15))
-#define EIFR   (*(volatile u8_t*)(0x14))
-#define EIMSK  (*(volatile u8_t*)(0x13))
-
 /*DIO Registers*/
 #define PUEB   (*(volatile u8_t*)(0x03))
 #define PORTB  (*(volatile u8_t*)(0x02))
@@ -52,9 +47,6 @@ typedef unsigned short u16_t;
 #define TCNT0  (*(volatile u16_t*)(0x28))
 #define OCR0A  (*(volatile u16_t*)(0x26))
 #define TIMSK0 (*(volatile u8_t*)(0x2B))
-
-/*Sleep mode control register*/
-#define SMCR   (*(volatile u8_t*)(0x3A))
 
 /*CLK control registers*/
 #define CLKMSR (*(volatile u8_t*)(0x37))
@@ -87,11 +79,5 @@ typedef unsigned short u16_t;
 #define PINB_PB1	(1)
 #define PINB_PB2	(2)
 #define PINB_PB3	(3)
-
-/*EIFR register*/
-#define EIFR_INTF0  (0)
-
-/*SMCR Register*/
-#define SMCR_SE		(0)
 
 #endif /*__MAIN_H__*/

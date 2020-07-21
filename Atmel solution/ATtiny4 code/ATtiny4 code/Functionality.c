@@ -2,7 +2,7 @@
  * @file    Functionality.c
  * @author  Ahmed Ashraf (ahmedashrafelnaqeeb@gmail.com)
  * @brief   This file contains the interfacing functions logic implementation for the power manager application
- * @version 1.1
+ * @version 1.4
  * @date    2020-07-13
  * 
  * @copyright Copyright (c) 2020
@@ -158,13 +158,7 @@ void mainApplication(void)
 			
 			/*De-activate PB0*/
 			CLEAR_BIT(PORTB , PORTB_PB0);
-			
-			/*Disable the timer*/
-			TCCR0 = 0;
-			
-			/*Disable global interrupts*/
-			CLEAR_BIT(SREG , SREG_IBIT);
-		
+					
 			/*Select the power down mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			
@@ -202,12 +196,6 @@ void mainApplication(void)
 	{
 		/*Delay to make sure the bouncing has gone*/
 		_delay_ms(50);
-
-		/*Disable the timer*/
-		TCCR0 = 0;
-		
-		/*Disable global interrupts*/
-		CLEAR_BIT(SREG , SREG_IBIT);
 		
 		/*Select the power down mode*/
 		set_sleep_mode(SLEEP_MODE_PWR_DOWN);
