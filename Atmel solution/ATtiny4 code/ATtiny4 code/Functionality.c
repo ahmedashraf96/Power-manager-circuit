@@ -169,7 +169,7 @@ void mainApplication(void)
 			sleep_enable();
 			
 			/*Execute sleep instruction*/
-			//sleep_cpu();
+			sleep_cpu();
 		}
 		
 		/*If the switch counter is reset then enable the timer and increase the switch counter by 1*/
@@ -192,7 +192,7 @@ void mainApplication(void)
 			sleep_enable();
 	
 			/*Execute sleep instruction*/
-			//sleep_cpu();			
+			sleep_cpu();			
 		}
 	}
 	else if( GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL )
@@ -210,7 +210,7 @@ void mainApplication(void)
 		sleep_enable();
 			
 		/*Execute sleep instruction*/
-		//sleep_cpu();
+		sleep_cpu();
 	}
 	else
 	{
