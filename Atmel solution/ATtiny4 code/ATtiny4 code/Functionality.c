@@ -124,8 +124,7 @@ void attiny4_init(void)
 	
 	/*Enable CTC mode interrupt*/
 	TIMSK0 = TIMER0_OCR0A_INT_EN;
-		
-				
+						
 	/*Enable global interrupts*/
 	SET_BIT(SREG , SREG_IBIT);
 	
@@ -158,7 +157,13 @@ void mainApplication(void)
 			
 			/*De-activate PB0*/
 			CLEAR_BIT(PORTB , PORTB_PB0);
-					
+
+			/*Disable global interrupts*/
+			CLEAR_BIT(SREG , SREG_IBIT);
+
+			/*Disable the timer*/
+			TCCR0 = 0;
+			
 			/*Select the power down mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			
@@ -196,6 +201,12 @@ void mainApplication(void)
 	{
 		/*Delay to make sure the bouncing has gone*/
 		_delay_ms(50);
+
+		/*Disable global interrupts*/
+		CLEAR_BIT(SREG , SREG_IBIT);
+
+		/*Disable the timer*/
+		TCCR0 = 0;
 		
 		/*Select the power down mode*/
 		set_sleep_mode(SLEEP_MODE_PWR_DOWN);
