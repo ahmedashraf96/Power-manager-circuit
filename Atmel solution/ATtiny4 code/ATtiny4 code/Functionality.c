@@ -33,9 +33,10 @@
 #define IO_PINS_DIR_INITIALIZATION      (0x01)
 #define IO_LOW_LEVEL					(0)
 #define IO_HIGH_LEVEL					(1)
-#define IO_PB2_PULLUP_ENABLE            (0x04)
 #define IO_PB0_LL                       (0x00)
 #define IO_PB0_HL                       (0x01)
+#define IO_PB0_MOSFET					(PORTB_PB0)
+#define IO_PB2_SWITCH					(PINB_PB2)
 #define SYSTEM_OFF_STATUS				(0xAA)
 #define SYSTEM_ON_STATUS				(0x55)
 #define ONE_SECOND                      (20)
@@ -44,6 +45,7 @@
 #define INTERNAL_OSC_SELECT_8MHZ        (0x00)
 #define ENABLE_CHANGE_FOR_IO_REG        (0xD8)
 #define MAIN_CLK_PRESCALING_BY_256      (0x08)
+#define DELAY_50MS						(50)
 		
 /************************************************************************/
 /*                        Important system variables                    */
@@ -91,9 +93,6 @@ void attiny4_init(void)
 	 */
 	DDRB = IO_PINS_DIR_INITIALIZATION;
 	
-	/*Enabling the pull up resistor for PB2*/
-	PUEB = IO_PB2_PULLUP_ENABLE;
-
 
 	/**
 	  * Adjusting the MCU CLK section
@@ -124,7 +123,7 @@ void attiny4_init(void)
 	
 	/*Enable CTC mode interrupt*/
 	TIMSK0 = TIMER0_OCR0A_INT_EN;
-						
+		
 	/*Enable global interrupts*/
 	SET_BIT(SREG , SREG_IBIT);
 	
@@ -134,7 +133,7 @@ void attiny4_init(void)
 void mainApplication(void)
 {
 	/*Check if the switch over PB2 is pressed or not*/
-	if( GET_BIT(PINB , PINB_PB2) == IO_LOW_LEVEL )
+	if( GET_BIT(PINB , IO_PB2_SWITCH) == IO_LOW_LEVEL )
 	{	
 		/*If the switch is pressed for more than one second and the system is in OFF mode then go to ON mode*/	
 		if( (gu16_switchCounter > ONE_SECOND && gu16_switchCounter < TWO_SECONDS) && (gu8_systemStatus == SYSTEM_OFF_STATUS) )
@@ -145,8 +144,8 @@ void mainApplication(void)
 			/*Set the switch counter to two seconds count*/
 			gu16_switchCounter = TWO_SECONDS;
 			
-			/*Activate PB0*/
-			SET_BIT(PORTB , PORTB_PB0);
+			/*Activate Mosfet over PB0*/
+			SET_BIT(PORTB , IO_PB0_MOSFET);
 		}
 
 		/*If the switch is pressed for more than one second and the system is in ON mode then go to OFF mode*/
@@ -155,15 +154,15 @@ void mainApplication(void)
 			/*Report that the system is in OFF mode*/
 			gu8_systemStatus = SYSTEM_OFF_STATUS;
 			
-			/*De-activate PB0*/
-			CLEAR_BIT(PORTB , PORTB_PB0);
-
+			/*De-activate Mosfet over PB0*/
+			CLEAR_BIT(PORTB , IO_PB0_MOSFET);
+		
 			/*Disable global interrupts*/
 			CLEAR_BIT(SREG , SREG_IBIT);
 
 			/*Disable the timer*/
 			TCCR0 = 0;
-			
+		
 			/*Select the power down mode*/
 			set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 			
@@ -197,10 +196,10 @@ void mainApplication(void)
 			sleep_cpu();			
 		}
 	}
-	else if( GET_BIT(PINB , PINB_PB2) == IO_HIGH_LEVEL )
+	else if( GET_BIT(PINB , IO_PB2_SWITCH) == IO_HIGH_LEVEL )
 	{
 		/*Delay to make sure the bouncing has gone*/
-		_delay_ms(50);
+		_delay_ms(DELAY_50MS);
 
 		/*Disable global interrupts*/
 		CLEAR_BIT(SREG , SREG_IBIT);
